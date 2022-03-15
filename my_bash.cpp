@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int main(int argc, const char *argv[])
+int main(int argc, const char **argv)
 {
 
     cout << "Yes Master ? " << endl;
@@ -30,6 +30,7 @@ int main(int argc, const char *argv[])
             data = line.substr(line.find_first_of(" ") + 1);
         }
         if(cmd == "ECHO"){
+            cout << data << endl; 
 
         }
         if(cmd == "TCP PORT"){
@@ -45,4 +46,5 @@ int main(int argc, const char *argv[])
             
         }
     }
+    return 0; 
 }
