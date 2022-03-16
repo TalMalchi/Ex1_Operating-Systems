@@ -80,20 +80,22 @@ int main(int argc, const char **argv)
 
     pid_t ch_pid = fork();
 
+    // if pid == -1, fork faild
     if (ch_pid == -1) {
-        perror("fork");
+        perror("Fork failed");
         exit(EXIT_FAILURE);
 
     } 
-    ////////parent
+    ////////if pid >0 , I'm parent
     else if (ch_pid > 0) {
         cout << "spawn child with pid - " << ch_pid << endl;
         return ch_pid;
         }
 
-    ////////child 
+    ////////if pid ==0 , I'm child
     else {
-        execve(program, arg_list, nullptr);
+        char* args[2]= {"./check", NULL}
+        execve(args[0], args, nullptr);
         perror("execve");
         exit(EXIT_FAILURE);
     }
