@@ -48,7 +48,7 @@ int main(int argc, const char **argv)
             dir_handler = opendir(".");
             if (dir_handler)
             {
-                // if isn't- print all the dir's files 
+                // if isn't null- print all the dir's files 
                 while ((files = readdir(dir_handler)) != NULL){
                     cout << files->d_name << endl;
             }
