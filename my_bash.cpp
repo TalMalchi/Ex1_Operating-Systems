@@ -44,26 +44,21 @@ int main(int argc, const char **argv)
         {
             DIR *dir_handler;
             struct dirent *files;
-
-
+            // open the current directory
             dir_handler = opendir(".");
             if (dir_handler)
             {
-
+                // if isn't- print all the dir's files 
                 while ((files = readdir(dir_handler)) != NULL){
                     cout << files->d_name << endl;
-            
             }
             }
-
             else {
                 cout << "Error" << endl; 
             }  
             closedir(dir_handler); 
-
-             
-
     }
+
     if (cmd == "CD")
     {
         if (data == ".." || data == "\n")
