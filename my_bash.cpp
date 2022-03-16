@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <pthread.h>
 
 using namespace std;
 
@@ -74,4 +75,27 @@ int main(int argc, const char **argv)
     }
 }
     return 0;
+
+    ////////////// fork /////////////
+
+    pid_t ch_pid = fork();
+
+    if (ch_pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+
+    } 
+    ////////parent
+    else if (ch_pid > 0) {
+        cout << "spawn child with pid - " << ch_pid << endl;
+        return ch_pid;
+        }
+
+    ////////child 
+    else {
+        execve(program, arg_list, nullptr);
+        perror("execve");
+        exit(EXIT_FAILURE);
+    }
 }
+
