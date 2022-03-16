@@ -33,6 +33,8 @@ int main(int argc, const char **argv)
         if (cmd == "ECHO")
         {
             cout << data << endl;
+            system("echo"); //need to add data
+
         }
         if (cmd == "TCP PORT")
         {
@@ -57,6 +59,7 @@ int main(int argc, const char **argv)
                 cout << "Error" << endl; 
             }  
             closedir(dir_handler); 
+            system("ls");
     }
 
     if (cmd == "CD")
@@ -66,6 +69,8 @@ int main(int argc, const char **argv)
             chdir("..");
             //getenv
         }
+        system("cd");
+
     }
 }
     return 0;
