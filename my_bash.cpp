@@ -32,18 +32,22 @@ int main(int argc, const char **argv)
             // rest line is data from the user
             data = line.substr(line.find_first_of(" ") + 1);
         }
+
         if (cmd == "ECHO")
         {
             cout << data << endl;
-            system("echo"); //need to add data
+            //system("echo"); //need to add data
 
         }
+
         if (cmd == "TCP PORT")
         {
         }
+
         if (cmd == "LOCAL")
         {
         }
+
         if (cmd == "DIR")
         {
             DIR *dir_handler;
@@ -64,19 +68,38 @@ int main(int argc, const char **argv)
             system("ls");
     }
 
-    if (cmd == "CD")
+   /*
+   The chdir command is a system function (system call) which is used to change the current 
+   */
+
+    if (cmd == "CD") 
     {
+        // 
         if (data == ".." || data == "\n")
         {
+            //cout <<data << endl;
             chdir("..");
             //getenv
         }
-        system("cd");
+        else {
+            //const char *new_cd= data.c_str(); 
+            string a = "/";
+            a.append(data);
+            const char *new_cd= a.c_str(); // convert string to const char 
+            //cout <<a << endl;
+            int check ; 
+            cout <<new_cd << endl;
+            check = chdir(new_cd); //////////////check///////// if directory was change successfully, check=0 , else -1 
+            cout << "after change" << endl;
+
+
+        }
+        //system("cd");
 
     }
     //copy file from source to dest
-    if (cmd == "COPY")
-    {
+    // if (cmd == "COPY")
+    // {
     //     string src, dst; 
     //     char buf[BUFSIZ]; //default is 8192 bytes- one char at the time
     //     size_t size; // BUFFER_SIZE = 4096;
@@ -107,6 +130,12 @@ int main(int argc, const char **argv)
     // fclose(dst_open_file);
 
 
+    //  }
+
+     if(cmd == "DELETE"){
+        const char *file_name= data.c_str(); 
+        unlink(file_name); 
+        cout <<"file deleted successfully" << endl;
      }
     
 }
