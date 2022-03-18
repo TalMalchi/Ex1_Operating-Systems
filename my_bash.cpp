@@ -8,6 +8,9 @@
 #include <pthread.h>
 #include <cstdio>
 #include <sys/socket.h>
+#include <sys/stat.h>
+#include <filesystem>
+
 
 using namespace std;
 
@@ -28,8 +31,13 @@ int main(int argc, const char **argv)
     {
         // print current directory each time
         getcwd(cwd, sizeof(cwd));
-        cout << cwd << ": " << endl;
-        cout << "Yes Master ? " << endl;
+        cout << "\u001b[33;1m" << cwd << ": " 
+             << "\x1B[0m";
+        //cout << cwd << ": " << endl;
+        //cout << "Yes Master ? " << endl;
+        cout << "\u001b[31;1m" 
+         << "Yes Master ?"
+         << "\x1B[0m" << endl;
 
         getline(cin, line);
         // first word is cmd
@@ -67,14 +75,15 @@ int main(int argc, const char **argv)
             {
                 // if isn't null- print all the dir's files 
                 while ((files = readdir(dir_handler)) != NULL){
-                    cout << files->d_name << endl;
+                    //cout << files->d_name << endl;
+                    cout << "\u001b[32;1m" << files->d_name << "\x1B[0m" << endl;
             }
             }
             else {
                 cout << "Error" << endl; 
             }  
             closedir(dir_handler); 
-            system("ls");
+            //system("ls");
     }
 
    /*
