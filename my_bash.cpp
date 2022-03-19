@@ -1,5 +1,7 @@
 #include <iostream>
+#include <errno.h>
 #include <string>
+#include <strings.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -10,11 +12,17 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <filesystem>
+#include <arpa/inet.h>
+#include <netinet/ip.h>
+#include <sys/wait.h>
+#include <netinet/tcp.h>
+#include <math.h>
+
 
 
 using namespace std;
 
-#define PORT 8080
+#define SIZE 1024
 
 
 int main(int argc, const char **argv)
@@ -51,39 +59,124 @@ int main(int argc, const char **argv)
 
         if (cmd == "ECHO")
         {
-            cout << data << endl;
-            //system("echo"); //need to add data
+                //cout << data << endl;
+                //system("echo"); //need to add data
+                    pid_t ch_pid = fork();
 
+        //// if pid == -1, fork faild
+        if (ch_pid == -1) {
+            perror("Fork failed");
+            exit(EXIT_FAILURE);
+
+        } 
+        //////// if pid >0 , I'm parent
+        else if (ch_pid > 0) {
+            cout << "spawn child with pid - " << ch_pid << endl;
+            wait(NULL); 
+            cout<< "atfer waiting" <<endl; 
+
+
+            //return ch_pid;
+            }
+
+        //////// if pid ==0 , I'm child
+        else {
+            //const char* cmd_fork= cmd.c_str(); 
+            char* a = "echo"; 
+            char* args[2]= {(char*)a , NULL}; //////////// need to do another file for this function 
+            cout<< "got here!!!!!" <<endl; 
+            execv(args[0], args);
+            cout<< "got here" <<endl; 
+            perror("execve");
+            exit(EXIT_FAILURE);
         }
+}
 
-        if (cmd == "TCP PORT")
+        //}
+
+        if (cmd == "TCP")
         {
 
-        }
 
-        if (cmd == "LOCAL")
+
+        struct sockaddr_in dest_info;
+
+        // ------------------------------------------------------------
+        // STEP 1: Open Socket TCP
+        // ------------------------------------------------------------
+        int sockfd = socket(AF_INET, SOCK_STREAM /*TCP*/, 0);
+        if (sockfd == -1)
+        {
+            printf("\t------ open socket FAILED ------\n");
+            exit(0);
+        }
+        printf("\t------ Socket created SUCCEES ------\n");
+
+        // all the data dest are reload to "dest_info"
+        dest_info.sin_family = AF_INET;         /*sending type - IpV6*/ //tells which way to pass the information
+        dest_info.sin_addr.s_addr = INADDR_ANY; /*read all interfaces*/ //socket that send information // 
+        dest_info.sin_port = 8080;              /*protocol kind*/
+
+        bzero(&dest_info, sizeof(dest_info)); // turn &dest_info to "0" --> (need before reload)
+
+
+        // ------------------------------------------------------------
+        // STEP 2: Conection with - measure
+        // ------------------------------------------------------------
+        int check = connect(sockfd, (struct sockaddr *)&dest_info, sizeof(dest_info)); // if == 0 => is connected
+        if (check != 0)
+        {
+            printf("\t------ connection FAILED ------\n");
+            exit(0);
+        }
+        printf("\t------ connection SUCCEES ------\n");
+
+        //char data1[SIZE] = data; /*Send FILE*/
+        const void* a= data.c_str();
+        int i=0;
+        while(i<10)
+        {
+            send(sockfd , a , sizeof(a) , 0 ); 
+            printf("Message sent\n"); 
+            //valread = read( sockfd , buffer, 1024); 
+            //printf("%s\n",buffer );
+            i++;
+        }
+                
+
+                // ------------------------------------------------------------
+                // STEP 6: Close conection
+                // ------------------------------------------------------------
+                close(sockfd);
+            }
+
+        //}
+        //system("./server");
+        
+
+        if(cmd == "LOCAL")
         {
         }
 
         if (cmd == "DIR") /// check the different between file and directory
         {
-            DIR *dir_handler;
-            struct dirent *files;
-            // open the current directory
-            dir_handler = opendir(".");
-            if (dir_handler)
-            {
-                // if isn't null- print all the dir's files 
-                while ((files = readdir(dir_handler)) != NULL){
-                    //cout << files->d_name << endl;
-                    cout << "\u001b[32;1m" << files->d_name << "\x1B[0m" << endl;
-            }
-            }
-            else {
-                cout << "Error" << endl; 
-            }  
-            closedir(dir_handler); 
-            //system("ls");
+            // DIR *dir_handler;
+            // struct dirent *files;
+            // // open the current directory
+            // dir_handler = opendir(".");
+            // if (dir_handler)
+            // {
+            //     // if isn't null- print all the dir's files 
+            //     while ((files = readdir(dir_handler)) != NULL){
+            //         //cout << files->d_name << endl;
+            //         cout << "\u001b[32;1m" << files->d_name << "\x1B[0m" << endl;
+            // }
+            // }
+            // else {
+            //     cout << "Error" << endl; 
+            // }  
+            // closedir(dir_handler); 
+            system("ls");
     }
 
    /*
@@ -158,32 +251,35 @@ int main(int argc, const char **argv)
         unlink(file_name); 
         cout <<"file deleted successfully" << endl;
      }
-    
 }
     return 0;
 
+}
+    
+
     ////////////// fork /////////////
 
-    // pid_t ch_pid = fork();
+//     pid_t ch_pid = fork();
 
-    // //// if pid == -1, fork faild
-    // if (ch_pid == -1) {
-    //     perror("Fork failed");
-    //     exit(EXIT_FAILURE);
+//     //// if pid == -1, fork faild
+//     if (ch_pid == -1) {
+//         perror("Fork failed");
+//         exit(EXIT_FAILURE);
 
-    // } 
-    // //////// if pid >0 , I'm parent
-    // else if (ch_pid > 0) {
-    //     cout << "spawn child with pid - " << ch_pid << endl;
-    //     return ch_pid;
-    //     }
+//     } 
+//     //////// if pid >0 , I'm parent
+//     else if (ch_pid > 0) {
+//         cout << "spawn child with pid - " << ch_pid << endl;
+//         return ch_pid;
+//         }
 
-    // //////// if pid ==0 , I'm child
-    // else {
-    //     char* args[2]= {"./check", NULL} //////////// need to do another file for this function 
-    //     execve(args[0], args, nullptr);
-    //     perror("execve");
-    //     exit(EXIT_FAILURE);
-    // }
-}
+//     //////// if pid ==0 , I'm child
+//     else {
+//         //const char* cmd_fork= cmd.c_str(); 
+//         char* args[2]= {(char*)cmd.c_str(), NULL}; //////////// need to do another file for this function 
+//         execvp(args[0], args);
+//         perror("execve");
+//         exit(EXIT_FAILURE);
+//     }
+//}
 
