@@ -1,111 +1,92 @@
 #include <iostream>
-#include <string>
-#include <stdio.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
+#include <sys/socket.h>
 #include <netdb.h>
-#include <sys/uio.h>
-#include <sys/time.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <fstream>
-
-
-
+#include <arpa/inet.h>
+#include <string.h>
+#include <string>
+ 
 using namespace std;
-//Server side
+ 
 int main()
 {
-    //for the server, we only need to specify a port number
-    
-    //grab the port number
-    int port = 8080;
-    //buffer to send and receive messages with
-    char msg[1500];
-     
-    //setup a socket and connection tools
-    sockaddr_in servAddr;
-    bzero((char*)&servAddr, sizeof(servAddr));
-    servAddr.sin_family = AF_INET;
-    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servAddr.sin_port = htons(port);
+    cout << "Server is ready!" << endl;
+    // Create a socket
+    int serverSock = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverSock == -1)
+    {
+        cerr << "Can't create a socket! Quitting" << endl;
+        return -1;
+    }
  
-    //open stream oriented socket with internet address
-    //also keep track of the socket descriptor
-    int serverSd = socket(AF_INET, SOCK_STREAM, 0);
-    if(serverSd < 0)
+    // Bind the ip address and port to a socket
+    sockaddr_in hint;
+    hint.sin_family = AF_INET;
+    hint.sin_port = htons(54000);
+    inet_pton(AF_INET, "0.0.0.0", &hint.sin_addr);
+ 
+    bind(serverSock, (sockaddr*)&hint, sizeof(hint));
+ 
+    // Tell Winsock the socket is for listening
+    listen(serverSock, SOMAXCONN);
+ 
+    // Wait for a connection
+    sockaddr_in client;
+    socklen_t clientSize = sizeof(client);
+ 
+    int clientSocket = accept(serverSock, (sockaddr*)&client, &clientSize);
+ 
+    char host[NI_MAXHOST];      // Client's remote name
+    char service[NI_MAXSERV];   // Service (i.e. port) the client is connect on
+ 
+    memset(host, 0, NI_MAXHOST); // same as memset(host, 0, NI_MAXHOST);
+    memset(service, 0, NI_MAXSERV);
+ 
+    if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
     {
-        cerr << "Error establishing the server socket" << endl;
-        exit(0);
+        cout << host << " connected on port " << service << endl;
     }
-    //bind the socket to its local address
-    int bindStatus = bind(serverSd, (struct sockaddr*) &servAddr, 
-        sizeof(servAddr));
-    if(bindStatus < 0)
+    else
     {
-        cerr << "Error binding socket to local address" << endl;
-        exit(0);
+        inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
+        cout << host << " connected on port " << ntohs(client.sin_port) << endl;
     }
-    cout << "Waiting for a client to connect..." << endl;
-    //listen for up to 5 requests at a time
-    listen(serverSd, 5);
-    //receive a request from client using accept
-    //we need a new address to connect with the client
-    sockaddr_in newSockAddr;
-    socklen_t newSockAddrSize = sizeof(newSockAddr);
-    //accept, create a new socket descriptor to 
-    //handle the new connection with client
-    int newSd = accept(serverSd, (sockaddr *)&newSockAddr, &newSockAddrSize);
-    if(newSd < 0)
+ 
+    // Close listening socket
+    close(serverSock);
+ 
+    // While loop: accept and echo message back to client
+    char buf[4096];
+ 
+    while (true)
     {
-        cerr << "Error accepting request from client!" << endl;
-        exit(1);
-    }
-    cout << "Connected with client!" << endl;
-    //lets keep track of the session time
-    struct timeval start1, end1;
-    gettimeofday(&start1, NULL);
-    //also keep track of the amount of data sent as well
-    int bytesRead, bytesWritten = 0;
-    while(1)
-    {
-        //receive a message from the client (listen)
-        cout << "Awaiting client response..." << endl;
-        memset(&msg, 0, sizeof(msg));//clear the buffer
-        bytesRead += recv(newSd, (char*)&msg, sizeof(msg), 0);
-        if(!strcmp(msg, "exit"))
+        memset(buf, 0, 4096);
+ 
+        // Wait for client to send data
+        int bytesReceived = recv(clientSocket, buf, 4096, 0);
+        if (bytesReceived == -1)
         {
-            cout << "Client has quit the session" << endl;
+            cerr << "Error in recv(). Quitting" << endl;
+            //break;
+        }
+ 
+        if (bytesReceived == 0)
+        {
+            cout << "Client disconnected " << endl;
             break;
         }
-        cout << "Client: " << msg << endl;
-        cout << ">";
-        string data;
-        getline(cin, data);
-        memset(&msg, 0, sizeof(msg)); //clear the buffer
-        strcpy(msg, data.c_str());
-        if(data == "exit")
-        {
-            //send to the client that server has closed the connection
-            send(newSd, (char*)&msg, strlen(msg), 0);
-            break;
-        }
-        //send the message to client
-        bytesWritten += send(newSd, (char*)&msg, strlen(msg), 0);
+        else{
+ 
+        cout << string(buf, 0, bytesReceived) << endl;
+ 
+        // Echo message back to client
+        send(clientSocket, buf, bytesReceived + 1, 0);
     }
-    //we need to close the socket descriptors after we're all done
-    gettimeofday(&end1, NULL);
-    close(newSd);
-    close(serverSd);
-    cout << "********Session********" << endl;
-    cout << "Bytes written: " << bytesWritten << " Bytes read: " << bytesRead << endl;
-    cout << "Elapsed time: " << (end1.tv_sec - start1.tv_sec) 
-        << " secs" << endl;
-    cout << "Connection closed..." << endl;
-    return 0;   
+    }
+ 
+    // Close the socket
+     close(clientSocket);
+ 
+    return 0;
 }

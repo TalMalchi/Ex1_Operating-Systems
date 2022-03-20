@@ -17,13 +17,14 @@
 #include <netinet/tcp.h>
 #include <math.h>
 #include <string.h>
+#include <netdb.h>
 
 using namespace std;
 
-#define PORT 8080
-void writeNewTer(){
-    cout<<"test"<< endl;
-}
+// #define PORT 8080
+// void writeNewTer(){
+//     cout<<"test"<< endl;
+// }
 
 int main(int argc, const char **argv)
 {
@@ -67,71 +68,75 @@ int main(int argc, const char **argv)
 
         if (cmd == "TCP")
         { 
-        char *serverIp = "127.0.0.1"; 
-        int port = 8080; 
-    //create a message buffer 
-    char msg[1500]; 
-    //setup a socket and connection tools 
-    //struct hostent* host = gethostname(serverIp, size_t(serverIp)); 
-    sockaddr_in sendSockAddr;   
-    bzero((char*)&sendSockAddr, sizeof(sendSockAddr)); 
-    sendSockAddr.sin_family = AF_INET; 
-    sendSockAddr.sin_addr.s_addr = INADDR_ANY;
-        
-    sendSockAddr.sin_port = htons(port);
-    int clientSd = socket(AF_INET, SOCK_STREAM, 0);
-    //try to connect...
-    int status = connect(clientSd,
-                         (sockaddr*) &sendSockAddr, sizeof(sendSockAddr));
-    if(status < 0)
+       //	Create a socket
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
     {
-        cout<<"Error connecting to socket!"<<endl; break;
-    }
-    cout << "Connected to the server!" << endl;
-    int bytesRead, bytesWritten = 0;
-  
-    while(1)
-    {
-        cout << ">";
-       
-        memset(&msg, 0, sizeof(msg));//clear the buffer
-        strcpy(msg, data.c_str());
-        if(data == "exit")
-        {
-            send(clientSd, (char*)&msg, strlen(msg), 0);
-            break;
-        }
-        bytesWritten += send(clientSd, (char*)&msg, strlen(msg), 0);
-        cout << "Awaiting server response..." << endl;
-        memset(&msg, 0, sizeof(msg));//clear the buffer
-        bytesRead += recv(clientSd, (char*)&msg, sizeof(msg), 0);
-        if(!strcmp(msg, "exit"))
-        {
-            cout << "Server has quit the session" << endl;
-            break;
-        }
-        cout << "Server: " << msg << endl;
+        return 1;
     }
 
-    close(clientSd);
-    cout << "********Session********" << endl;
-    cout << "Bytes written: " << bytesWritten << 
-    " Bytes read: " << bytesRead << endl;
-    //cout << "Elapsed time: " << (end1.tv_sec- start1.tv_sec) 
-      //<< " secs" << endl;
-    cout << "Connection closed" << endl;
-    return 0;  
+    //	Create a hint structure for the server we're connecting with
+    int port = 54000;
+    string ipAddress = "127.0.0.1";
+
+    sockaddr_in hint;
+    hint.sin_family = AF_INET;
+    hint.sin_port = htons(port);
+    inet_pton(AF_INET, ipAddress.c_str(), &hint.sin_addr);
+
+    //	Connect to the server on the socket
+    int connectRes = connect(sock, (sockaddr*)&hint, sizeof(hint));
+    if (connectRes == -1)
+    {
+        return 1;
+    }
+
+    //	While loop:
+    char buf[4096];
+    string userInput;
+
+
+    do {
+        //		Enter lines of text
+        cout << "> ";
+        getline(cin, userInput);
+
+        //		Send to server
+        int sendRes = send(sock, userInput.c_str(), userInput.size() + 1, 0);
+        if (sendRes == -1)
+        {
+            cout << "Could not send to server! Whoops!\r\n";
+            continue;
+        }
+
+        //		Wait for response
+        memset(buf, 0, 4096);
+        int bytesReceived = recv(sock, buf, 4096, 0);
+        if (bytesReceived == -1)
+        {
+            cout << "There was an error getting response from server\r\n";
+        }
+        if (string(buf, 0, bytesReceived) == "LOCAL"){
+            cout << "gotta go! "<< endl;
+            break;
+
+
+        }
+        else
+        {
+            //		Display response
+            cout << "SERVER> " << string(buf, bytesReceived) << "\r\n";
+        }
+    } while(true);
+
+    //	Close the socket
+    close(sock);
 } 
-            
-
-            
-            
-                
         
 
-        if (cmd == "LOCAL")
-        {
-        }
+        // if (cmd == "LOCAL")
+        // {
+        // }
 
         if (cmd == "DIR") /// check the different between file and directory
         {
@@ -254,5 +259,3 @@ int main(int argc, const char **argv)
     //     exit(EXIT_FAILURE);
     // }
 }
-
-
