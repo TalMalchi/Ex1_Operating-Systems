@@ -21,10 +21,6 @@
 
 using namespace std;
 
-// #define PORT 8080
-// void writeNewTer(){
-//     cout<<"test"<< endl;
-// }
 
 int main(int argc, const char **argv)
 {
@@ -60,15 +56,22 @@ int main(int argc, const char **argv)
         string checkTCP = data.substr(data.find_first_of(" ") + 1);
         if (cmd == "ECHO")
         {
-            
-            cout << data << endl;
-            //system("echo"); //need to add data
+            //REGULAR COMMAND
+            //cout << data << endl;
+
+            //SYSTEM COMMAND
+            setenv("data_paste", data.c_str(), 1);
+            system("echo $data_paste"); //need to add data
 
         }
 
         if (cmd == "TCP" && checkTCP == "PORT")
         { 
-             
+            //SYSTEM COMMAND
+          // system("netcat 127.0.0.1 54000");
+
+
+         //REGULAR COMMAND    
        //	Create a socket
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
@@ -98,7 +101,7 @@ int main(int argc, const char **argv)
 
 
     do {
-        //		Enter lines of text
+        //		
         cout << "> ";
         getline(cin, userInput);
 
@@ -119,6 +122,7 @@ int main(int argc, const char **argv)
         }
         if (string(buf, 0, bytesReceived) == "LOCAL"){
             cout << "gotta go! "<< endl;
+            
             break;
 
 
@@ -135,12 +139,14 @@ int main(int argc, const char **argv)
 } 
         
 
-        // if (cmd == "LOCAL")
-        // {
-        // }
-
+        
         if (cmd == "DIR") /// check the different between file and directory
         {
+            // SYSTEM COMMAND    
+            //system("ls");
+
+
+            //REGULAR COMMAND
             DIR *dir_handler;
             struct dirent *files;
             // open the current directory
@@ -157,16 +163,23 @@ int main(int argc, const char **argv)
                 cout << "Error" << endl; 
             }  
             closedir(dir_handler); 
-            //system("ls");
+
+
+            
     }
 
    /*
-   The chdir command is a system function (system call) which is used to change the current 
+   The chdir command is a system function (system call) which is used to change the current directory
+
    */
 
     if (cmd == "CD") 
     {
-        // 
+        //SYSTEM COMMAND
+        //system("cd");
+
+
+        // REGULAR COMMAND
         if (data == ".." || data == "\n")
         {
             //cout <<data << endl;
@@ -187,7 +200,7 @@ int main(int argc, const char **argv)
 
 
         }
-        //system("cd");
+        
 
     }
 
@@ -235,6 +248,25 @@ int main(int argc, const char **argv)
     
 }
     return 0;
+
+
+
+    /* ***********************ANSWERS******************
+        1. DOES SYSTEM IS LIBRARY FUNCTION OR SYSTEM FUNCTION?
+        1- ANSWER: "system" is SYSTEM function, because when we use it, the data we write inside
+            this function command is written directly to the main shell.
+
+        2. DOES YOUR FILE READ IMPLEMITATION USES LIBRARY FUNCTION OR SYSTEM FUNCTION?
+        2- ANSWER: Our "COPY SOURCE DEST" function uses the library function, 
+            because we use in "fread", "fwrite", "fclose".
+
+        3. DOES the "DELETE FILE NAME" IS LIBRARY FUNCTION OR SYSTEM FUNCTION?
+        3- ANSWER: The "DELETE FILE NAME" function is a system function.   
+        
+
+        ****************************END*****************************************
+
+    */
 
     ////////////// fork /////////////
 
