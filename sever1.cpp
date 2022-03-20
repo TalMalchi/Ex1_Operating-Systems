@@ -74,7 +74,9 @@ int main()
         if (bytesReceived == 0)
         {
             cout << "Client disconnected " << endl;
-            break;
+            close(clientSocket);
+            main();
+            
         }
         else{
  

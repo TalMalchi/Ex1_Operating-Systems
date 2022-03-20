@@ -57,7 +57,7 @@ int main(int argc, const char **argv)
             // rest line is data from the user
             data = line.substr(line.find_first_of(" ") + 1);
         }
-
+        string checkTCP = data.substr(data.find_first_of(" ") + 1);
         if (cmd == "ECHO")
         {
             
@@ -66,8 +66,9 @@ int main(int argc, const char **argv)
 
         }
 
-        if (cmd == "TCP")
+        if (cmd == "TCP" && checkTCP == "PORT")
         { 
+             
        //	Create a socket
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
