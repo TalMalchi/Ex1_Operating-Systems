@@ -1,104 +1,81 @@
 #include <iostream>
-#include <string>
-#include <arpa/inet.h>
-#include <netinet/ip.h>
-#include <netinet/tcp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <math.h>
-
+#include <sys/types.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <string>
 
-int main(int argc, const char** argv) {
+using namespace std;
 
- int sockfd, n_sock;
-        socklen_t addr_size;
-        struct sockaddr_in s_addr, n_addr;
+int main()
+{
+    cout << "Server is ready!" << endl;
+    // create a socket
+    int serverSock = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverSock == -1)
+    {
+        cerr << "Can't create a socket! Quitting" << endl;
+        return -1;
+    }
 
-        // ------------------------------------------------------------
-        // STEP 1: Open Socket TCP
-        // ------------------------------------------------------------
-        sockfd = socket(AF_INET, SOCK_STREAM, 0); //sock stream- send information
-        if (sockfd < 0)
+    // bind the ip address and port to a socket
+    sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(54000);
+    inet_pton(AF_INET, "0.0.0.0", &addr.sin_addr);
+
+    if (bind(serverSock, (sockaddr *)&addr, sizeof(addr)) < 0)
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    listen(serverSock, SOMAXCONN);
+
+    // wait for a connection
+    sockaddr_in client;
+    socklen_t clientSize = sizeof(client);
+
+    int clientSocket = accept(serverSock, (sockaddr *)&client, &clientSize);
+    if (clientSocket < 0)
+    {
+        perror("accept");
+        exit(EXIT_FAILURE);
+    }
+    char buf[4096];
+
+    while (true)
+    {
+        try
         {
-            perror("\t------- Open socket is FAILED -------\n");
-            exit(1);
-        }
-        printf("\t------- Socket created SUCCEES -------\n");
-
-        // all the data dest are reload to "s_addr"
-        s_addr.sin_family = AF_INET;         /*sending type*/ //tells which way to pass the information
-        s_addr.sin_addr.s_addr = INADDR_ANY; /*read all interfaces*///socket that send information
-        s_addr.sin_port = 8080;              /*protocol kind*/
-
-        if (bind(sockfd, (struct sockaddr *)&s_addr, sizeof(s_addr)) < 0) //connect the address to the socket 
-        {
-            perror("\t------- bind is FAILED -------\n");
-            exit(1);
-        }
-        printf("\t------- bind SUCCEES -------\n");
-
-        // ------------------------------------------------------------
-        // STEP 2: Listening
-        // ------------------------------------------------------------
-        if (listen(sockfd, 10) == 0) //wait for incoming connection- till 10 request. zero is succsesful
-        {
-            printf("\t------ Listening SUCCEES ------\n");
-        }
-        else
-        {
-            perror("\t------ Listening FAILED ------\n");
-            exit(1);
-        }
-
-        // ------------------------------------------------------------
-        // STEP 3: Accept connection from - Sender
-        // ------------------------------------------------------------
-        addr_size = sizeof(n_addr);
-        n_sock = accept(sockfd, (struct sockaddr *)&n_addr, &addr_size); //accept request fron sender
-                int n_bytes = 0, counter_bytes = 0;
-            char *buffer = (char *)malloc(sizeof(char) * 1024);
-
-            while (n_bytes < pow(1024, 2)) //check that the file was sent successfuly
+            int data = recv(clientSocket, buf, 4096, 0);
+            if (data== -1)
             {
-                counter_bytes = recv(n_sock, buffer, 1024, 0); //check the file accept according to bytes's numbers
-                if (counter_bytes <= 0)
-                {
-                    break;
-                }
-                n_bytes += counter_bytes;
-                bzero(buffer, 1024);
+                cerr << "Error in recv(). Quitting" << endl;
+
             }
-            free(buffer);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            
+            if (data == 0)
+            {
+            cout << "Client disconnected " << endl;
+            close(clientSocket);
+            main();
+            }
+            
+            
+            else {
+                printf("%s\n", buf);
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+            exit(EXIT_FAILURE);
+        }
+    }
+        close(clientSocket);
+        return 0; 
 
 }

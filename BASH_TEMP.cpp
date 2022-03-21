@@ -75,6 +75,7 @@ int main(int argc, const char **argv)
                 return -1;
             }
 
+            
             int port = 54000;
             string ipAddress = "127.0.0.1";
 
@@ -83,52 +84,55 @@ int main(int argc, const char **argv)
             hint.sin_port = htons(port);
             inet_pton(AF_INET, ipAddress.c_str(), &hint.sin_addr);
 
-            // connect to the server on the socket
-            int connectRes = connect(sock, (sockaddr *)&hint, sizeof(hint));
-            if (connectRes == -1)
+            //connect to the server on the socket
+            if(connect(sock, (sockaddr *)&hint, sizeof(hint))<0) 
             {
-                return 1;
-            }
+                printf("\nConnection Failed \n");
+                return -1;            }
 
+            
             char buf[4096];
             string userInput;
 
             do
             {
-
+                //
                 cout << "> ";
                 getline(cin, userInput);
-
-                // send data to server
-                int sendRes = send(sock, userInput.c_str(), userInput.size() + 1, 0);
-                if (sendRes == -1)
+                if (userInput== "LOCAL")
                 {
-                    cout << "Could not send to server! Whoops!\r\n";
-                    continue;
-                }
-
-                // server response
-                memset(buf, 0, 4096);
-                int bytesReceived = recv(sock, buf, 4096, 0);
-                if (bytesReceived == -1)
-                {
-                    cout << "no response from the server!\r\n";
-                }
-                if (string(buf, 0, bytesReceived) == "LOCAL")
-                {
-                    cout << "gotta go! " << endl;
-
+                    cout << "gotta go!" << endl; 
                     break;
                 }
-                else
-                {
-                    cout << "SERVER> " << string(buf, bytesReceived) << "\r\n";
-                }
-            } while (true);
+                
+                send(sock, userInput.c_str(), userInput.size() + 1, 0);
+
+            //     //		Send to server
+            //     int sendRes = send(sock, userInput.c_str(), userInput.size() + 1, 0);
+            //     if (sendRes == -1)
+            //     {
+            //         cout << "Could not send to server! Whoops!\r\n";
+            //         continue;
+            //     }
+
+            //     if (string(buf, 0, bytesReceived) == "LOCAL")
+            //     {
+            //         cout << "gotta go! " << endl;
+
+            //         break;
+            //     }
+            //     else
+            //     {
+            //         //		Display response
+            //         cout << "SERVER> " << string(buf, bytesReceived) << "\r\n";
+            //     }
+             } while (true);
+
+            //	Close the socket
             close(sock);
         }
-
-        if (cmd == "DIR")
+        
+        if (cmd == "DIR") /// check the different between file and directory
         {
             // SYSTEM COMMAND
             // system("ls");
@@ -154,6 +158,11 @@ int main(int argc, const char **argv)
             closedir(dir_handler);
         }
 
+        /*
+        The chdir command is a system function (system call) which is used to change the current directory
+
+        */
+
         if (cmd == "CD")
         {
             // SYSTEM COMMAND
@@ -162,13 +171,17 @@ int main(int argc, const char **argv)
             // REGULAR COMMAND
             if (data == ".." || data == "\n")
             {
+                // cout <<data << endl;
                 chdir("..");
+                // getenv
             }
             else
             {
+                // const char *new_cd= data.c_str();
                 string a = "";
                 a.append(data);
                 const char *new_cd = a.c_str(); // convert string to const char
+                // cout <<a << endl;
                 int check;
                 cout << new_cd << endl;
                 check = chdir(new_cd); // if directory was change successfully, check=0 , else -1
@@ -221,21 +234,17 @@ int main(int argc, const char **argv)
     }
     return 0;
 
-    /* ***********************ANSWERS*****************************
+    /* ***********************ANSWERS******************
         1. DOES SYSTEM IS LIBRARY FUNCTION OR SYSTEM FUNCTION?
         1- ANSWER: "system" is SYSTEM function, because when we use it, the data we write inside
             this function command is written directly to the main shell.
 
         2. DOES YOUR FILE READ IMPLEMITATION USES LIBRARY FUNCTION OR SYSTEM FUNCTION?
-        2- ANSWER: Our "COPY SRC DST" function uses the library function,
+        2- ANSWER: Our "COPY SOURCE DEST" function uses the library function,
             because we use in "fread", "fwrite", "fclose".
 
-        3. DOES "cd" COMMAND IS A LIBRARY FUNCTION OR SYSTEM FUNCTION?
-        3-The chdir command is a system function (system call) which is used to change the current directory
-
-
-        4. DOES "DELETE FILENAME" COMMAND IS A LIBRARY FUNCTION OR SYSTEM FUNCTION?
-        4- ANSWER: The "DELETE FILE NAME" function is a system function.
+        3. DOES the "DELETE FILE NAME" IS LIBRARY FUNCTION OR SYSTEM FUNCTION?
+        3- ANSWER: The "DELETE FILE NAME" function is a system function.
 
 
         ****************************END*****************************************

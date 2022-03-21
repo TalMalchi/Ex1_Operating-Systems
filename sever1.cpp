@@ -6,44 +6,47 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <string>
- 
+
 using namespace std;
- 
+
 int main()
 {
     cout << "Server is ready!" << endl;
-    // Create a socket
+    // create a socket
     int serverSock = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSock == -1)
     {
         cerr << "Can't create a socket! Quitting" << endl;
         return -1;
     }
- 
-    // Bind the ip address and port to a socket
-    sockaddr_in hint;
-    hint.sin_family = AF_INET;
-    hint.sin_port = htons(54000);
-    inet_pton(AF_INET, "0.0.0.0", &hint.sin_addr);
- 
-    bind(serverSock, (sockaddr*)&hint, sizeof(hint));
- 
-    // Tell Winsock the socket is for listening
+
+    //bind the ip address and port to a socket
+    sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(54000);
+    inet_pton(AF_INET, "0.0.0.0", &addr.sin_addr);
+
+    if (bind(serverSock, (sockaddr *)&addr, sizeof(addr)) < 0)
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
     listen(serverSock, SOMAXCONN);
- 
-    // Wait for a connection
+
+    //wait for a connection
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
- 
-    int clientSocket = accept(serverSock, (sockaddr*)&client, &clientSize);
- 
-    char host[NI_MAXHOST];      // Client's remote name
-    char service[NI_MAXSERV];   // Service (i.e. port) the client is connect on
- 
-    memset(host, 0, NI_MAXHOST); // same as memset(host, 0, NI_MAXHOST);
+
+    int clientSocket = accept(serverSock, (sockaddr *)&client, &clientSize);
+
+    char host[NI_MAXHOST];    
+    char service[NI_MAXSERV]; 
+
+    memset(host, 0, NI_MAXHOST);
     memset(service, 0, NI_MAXSERV);
- 
-    if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
+
+    if (getnameinfo((sockaddr *)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
     {
         cout << host << " connected on port " << service << endl;
     }
@@ -52,43 +55,43 @@ int main()
         inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
         cout << host << " connected on port " << ntohs(client.sin_port) << endl;
     }
- 
-    // Close listening socket
+
+    //close listening socket
     close(serverSock);
- 
-    // While loop: accept and echo message back to client
+
+    //accept and echo message back to client
     char buf[4096];
- 
+
     while (true)
     {
         memset(buf, 0, 4096);
- 
-        // Wait for client to send data
+
+        //wait for client to send data
         int bytesReceived = recv(clientSocket, buf, 4096, 0);
         if (bytesReceived == -1)
         {
-            cerr << "Error in recv(). Quitting" << endl;
-            //break;
+            cerr << "Error in recevie" << endl;
+        
         }
- 
+
         if (bytesReceived == 0)
         {
-            cout << "Client disconnected " << endl;
+            cout << "Client disconnected from the server" << endl;
             close(clientSocket);
             main();
-            
         }
-        else{
- 
-        cout << string(buf, 0, bytesReceived) << endl;
- 
-        // Echo message back to client
-        send(clientSocket, buf, bytesReceived + 1, 0);
+        else
+        {
+
+            cout << string(buf, 0, bytesReceived) << endl;
+
+            //send echo message back to client
+            send(clientSocket, buf, bytesReceived + 1, 0);
+        }
     }
-    }
- 
-    // Close the socket
-     close(clientSocket);
- 
+
+
+    close(clientSocket);
+
     return 0;
 }
