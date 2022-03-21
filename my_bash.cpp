@@ -53,12 +53,38 @@ int main(int argc, const char **argv)
         string checkTCP = data.substr(data.find_first_of(" ") + 1);
         if (cmd == "ECHO")
         {
+
+            pid_t ch_pid = fork();
+            int status;
+
+            //// if pid == -1, fork faild
+            if (ch_pid == -1)
+            {
+                perror("Fork failed");
+                exit(EXIT_FAILURE);
+            }
+            //////// if pid >0 , I'm parent
+            else if (ch_pid > 0)
+            {
+                cout << "spawn child with pid - " << ch_pid << endl;
+                wait(&status);
+            }
+
+            //////// if pid ==0 , I'm child
+            else
+            {
+                char *args[2] = {"/bin/echo", NULL}; //////////// need to do another file for this function
+                execv(args[0], args);
+                perror("execve");
+                exit(EXIT_FAILURE);
+            }
+        
             // REGULAR COMMAND
             // cout << data << endl;
 
             // SYSTEM COMMAND
-            setenv("data_paste", data.c_str(), 1);
-            system("echo $data_paste"); // need to add data
+            // setenv("data_paste", data.c_str(), 1);
+            // system("echo $data_paste"); // need to add data
         }
 
         if (cmd == "TCP" && checkTCP == "PORT")
@@ -130,51 +156,100 @@ int main(int argc, const char **argv)
 
         if (cmd == "DIR")
         {
-            // SYSTEM COMMAND
-            // system("ls");
+            // // SYSTEM COMMAND
+            // // system("ls");
 
-            // REGULAR COMMAND
-            DIR *dir_handler;
-            struct dirent *files;
+            // // REGULAR COMMAND
+            // DIR *dir_handler;
+            // struct dirent *files;
             // open the current directory
-            dir_handler = opendir(".");
-            if (dir_handler)
+            // dir_handler = opendir(".");
+            // if (dir_handler)
+            // {
+            //     // if isn't null- print all the dir's files
+            //     while ((files = readdir(dir_handler)) != NULL)
+            //     {
+            //         // cout << files->d_name << endl;
+            //         cout << "\u001b[32;1m" << files->d_name << "\x1B[0m" << endl;
+            //     }
+            // }
+            // else
+            // {
+            //     cout << "Error" << endl;
+            // }
+            // closedir(dir_handler);
+
+            pid_t ch_pid = fork();
+            int status;
+
+            //// if pid == -1, fork faild
+            if (ch_pid == -1)
             {
-                // if isn't null- print all the dir's files
-                while ((files = readdir(dir_handler)) != NULL)
-                {
-                    // cout << files->d_name << endl;
-                    cout << "\u001b[32;1m" << files->d_name << "\x1B[0m" << endl;
-                }
+                perror("Fork failed");
+                exit(EXIT_FAILURE);
             }
+            //////// if pid >0 , I'm parent
+            else if (ch_pid > 0)
+            {
+                cout << "spawn child with pid - " << ch_pid << endl;
+                wait(&status);
+            }
+
+            //////// if pid ==0 , I'm child
             else
             {
-                cout << "Error" << endl;
+                char *args[2] = {"/bin/ls", NULL}; //////////// need to do another file for this function
+                execv(args[0], args);
+                perror("execve");
+                exit(EXIT_FAILURE);
             }
-            closedir(dir_handler);
         }
 
         if (cmd == "CD")
         {
-            // SYSTEM COMMAND
-            // system("cd");
+            pid_t ch_pid = fork();
+            int status;
 
-            // REGULAR COMMAND
-            if (data == ".." || data == "\n")
+            //// if pid == -1, fork faild
+            if (ch_pid == -1)
             {
-                chdir("..");
+                perror("Fork failed");
+                exit(EXIT_FAILURE);
             }
+            //////// if pid >0 , I'm parent
+            else if (ch_pid > 0)
+            {
+                cout << "spawn child with pid - " << ch_pid << endl;
+                wait(&status);
+            }
+
+            //////// if pid ==0 , I'm child
             else
             {
-                string a = "";
-                a.append(data);
-                const char *new_cd = a.c_str(); // convert string to const char
-                int check;
-                cout << new_cd << endl;
-                check = chdir(new_cd); // if directory was change successfully, check=0 , else -1
-                cout << check << endl;
-                cout << "after change" << endl;
+                char *args[2] = {"/bin/cd", NULL}; //////////// need to do another file for this function
+                execv(args[0], args);
+                perror("execve");
+                exit(EXIT_FAILURE);
             }
+            // // SYSTEM COMMAND
+            // // system("cd");
+
+            // // REGULAR COMMAND
+            // if (data == ".." || data == "\n")
+            // {
+            //     chdir("..");
+            // }
+            // else
+            // {
+            //     string a = "";
+            //     a.append(data);
+            //     const char *new_cd = a.c_str(); // convert string to const char
+            //     int check;
+            //     cout << new_cd << endl;
+            //     check = chdir(new_cd); // if directory was change successfully, check=0 , else -1
+            //     cout << check << endl;
+            //     cout << "after change" << endl;
+            // }
         }
 
         // copy file from source to dest
@@ -245,6 +320,7 @@ int main(int argc, const char **argv)
     ////////////// fork /////////////
 
     // pid_t ch_pid = fork();
+    // int status;
 
     // //// if pid == -1, fork faild
     // if (ch_pid == -1) {
@@ -255,13 +331,13 @@ int main(int argc, const char **argv)
     // //////// if pid >0 , I'm parent
     // else if (ch_pid > 0) {
     //     cout << "spawn child with pid - " << ch_pid << endl;
-    //     return ch_pid;
+    //     wait(&status);
     //     }
 
     // //////// if pid ==0 , I'm child
     // else {
-    //     char* args[2]= {"./check", NULL} //////////// need to do another file for this function
-    //     execve(args[0], args, nullptr);
+    //     char* args[2]= {"/bin/ls", NULL}; //////////// need to do another file for this function
+    //     execv(args[0], args);
     //     perror("execve");
     //     exit(EXIT_FAILURE);
     // }
