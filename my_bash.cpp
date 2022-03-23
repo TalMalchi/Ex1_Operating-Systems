@@ -18,6 +18,7 @@
 #include <math.h>
 #include <string.h>
 #include <netdb.h>
+#include <ostream>
 
 using namespace std;
 
@@ -53,7 +54,9 @@ int main(int argc, const char **argv)
         string checkTCP = data.substr(data.find_first_of(" ") + 1);
         if (cmd == "ECHO")
         {
+             
 
+            ///////fork command/////////// 
             pid_t ch_pid = fork();
             int status;
 
@@ -73,26 +76,33 @@ int main(int argc, const char **argv)
             //////// if pid ==0 , I'm child
             else
             {
-                char *args[2] = {"/bin/echo", NULL}; //////////// need to do another file for this function
-                execv(args[0], args);
+                char bufffer[100]; 
+                strcpy(bufffer, data.c_str());
+                char *args[3] ;
+                args[0]= "echo"; 
+                args[1]= bufffer; 
+                args[2]=NULL; 
+
+                //= {"echo", "hii", NULL}; 
+                execvp(args[0], args);
                 perror("execve");
                 exit(EXIT_FAILURE);
             }
         
-            // REGULAR COMMAND
+            //////REGULAR COMMAND////////
             // cout << data << endl;
 
-            // SYSTEM COMMAND
+            //////SYSTEM COMMAND/////////
             // setenv("data_paste", data.c_str(), 1);
             // system("echo $data_paste"); // need to add data
         }
 
         if (cmd == "TCP" && checkTCP == "PORT")
         {
-            // SYSTEM COMMAND
+            //////SYSTEM COMMAND/////////
             // system("netcat 127.0.0.1 54000");
 
-            // REGULAR COMMAND
+            //////REGULAR COMMAND////////
             //	Create a socket
             int sock = socket(AF_INET, SOCK_STREAM, 0);
             if (sock == -1)
@@ -152,14 +162,48 @@ int main(int argc, const char **argv)
                 }
             } while (true);
             close(sock);
+
+            // /////////fork////////////
+            //     //cout << a <<endl;
+            // pid_t ch_pid = fork();
+            // int status;
+
+            // //// if pid == -1, fork faild
+            // if (ch_pid == -1)
+            // {
+            //     perror("Fork failed");
+            //     exit(EXIT_FAILURE);
+            // }
+            // //////// if pid >0 , I'm parent
+            // else if (ch_pid > 0)
+            // {
+            //     cout << "spawn child with pid - " << ch_pid << endl;
+            //     wait(&status);
+            // }
+
+            // //////// if pid ==0 , I'm child
+            // else
+            // {
+            //     // char bufffer[100]; 
+            //     // strcpy(bufffer, data.c_str());
+            //     // char *args[4] ;
+            //     // args[0]= "echo"; 
+            //     // args[1]= bufffer; 
+            //     // args[2]=NULL;
+
+            //     char *args[4] = {"netcat", "127.0.0.1", "54000", NULL}; //////////// need to do another file for this function
+            //     execvp(args[0], args);
+            //     perror("execve");
+            //     exit(EXIT_FAILURE);
+            // }
         }
 
         if (cmd == "DIR")
         {
-            // // SYSTEM COMMAND
+            // ////////SYSTEM COMMAND////////
             // // system("ls");
 
-            // // REGULAR COMMAND
+            // ////////REGULAR COMMAND///////
             // DIR *dir_handler;
             // struct dirent *files;
             // open the current directory
@@ -198,8 +242,8 @@ int main(int argc, const char **argv)
             //////// if pid ==0 , I'm child
             else
             {
-                char *args[2] = {"/bin/ls", NULL}; //////////// need to do another file for this function
-                execv(args[0], args);
+                char *args[2] = {"dir", NULL}; //////////// need to do another file for this function
+                execvp(args[0], args);
                 perror("execve");
                 exit(EXIT_FAILURE);
             }
@@ -226,15 +270,25 @@ int main(int argc, const char **argv)
             //////// if pid ==0 , I'm child
             else
             {
-                char *args[2] = {"/bin/cd", NULL}; //////////// need to do another file for this function
-                execv(args[0], args);
+                
+                char *args[3] = {"cd", "NEW_DIR", NULL}; 
+                execvp(args[0], args);
                 perror("execve");
                 exit(EXIT_FAILURE);
             }
-            // // SYSTEM COMMAND
-            // // system("cd");
+            // ///////SYSTEM COMMAND/////////
+            // string cur_dir= getcwd(cwd, sizeof(cwd));
+           // string new_dir= "cd "+data;
+            // string a= new_dir.append(data); 
+            //cout << new_dir << endl;
 
-            // // REGULAR COMMAND
+            //  system("cd NEW_DIR");
+            // string cur_dir= getcwd(cwd, sizeof(cwd));
+            //  cout << cur_dir << endl;
+
+           
+
+            // ////////REGULAR COMMAND////////
             // if (data == ".." || data == "\n")
             // {
             //     chdir("..");
@@ -317,28 +371,5 @@ int main(int argc, const char **argv)
 
     */
 
-    ////////////// fork /////////////
 
-    // pid_t ch_pid = fork();
-    // int status;
-
-    // //// if pid == -1, fork faild
-    // if (ch_pid == -1) {
-    //     perror("Fork failed");
-    //     exit(EXIT_FAILURE);
-
-    // }
-    // //////// if pid >0 , I'm parent
-    // else if (ch_pid > 0) {
-    //     cout << "spawn child with pid - " << ch_pid << endl;
-    //     wait(&status);
-    //     }
-
-    // //////// if pid ==0 , I'm child
-    // else {
-    //     char* args[2]= {"/bin/ls", NULL}; //////////// need to do another file for this function
-    //     execv(args[0], args);
-    //     perror("execve");
-    //     exit(EXIT_FAILURE);
-    // }
 }
