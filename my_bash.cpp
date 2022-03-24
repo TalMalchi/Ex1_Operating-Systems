@@ -36,13 +36,12 @@ int main(int argc, const char **argv)
         getcwd(cwd, sizeof(cwd));
         cout << "\u001b[33;1m" << cwd << ": "
              << "\x1B[0m";
-        // cout << cwd << ": " << endl;
-        // cout << "Yes Master ? " << endl;
         cout << "\u001b[31;1m"
              << "Yes Master ?"
              << "\x1B[0m" << endl;
 
         getline(cin, line);
+        cout << line << endl; 
         // first word is cmd
         cmd = line.substr(0, line.find_first_of(" "));
 
@@ -52,58 +51,19 @@ int main(int argc, const char **argv)
             data = line.substr(line.find_first_of(" ") + 1);
         }
         string checkTCP = data.substr(data.find_first_of(" ") + 1);
+
+
         if (cmd == "ECHO")
         {
-             
-
-            ///////fork command/////////// 
-            pid_t ch_pid = fork();
-            int status;
-
-            //// if pid == -1, fork faild
-            if (ch_pid == -1)
-            {
-                perror("Fork failed");
-                exit(EXIT_FAILURE);
-            }
-            //////// if pid >0 , I'm parent
-            else if (ch_pid > 0)
-            {
-                cout << "spawn child with pid - " << ch_pid << endl;
-                wait(&status);
-            }
-
-            //////// if pid ==0 , I'm child
-            else
-            {
-                char bufffer[100]; 
-                strcpy(bufffer, data.c_str());
-                char *args[3] ;
-                args[0]= "echo"; 
-                args[1]= bufffer; 
-                args[2]=NULL; 
-
-                //= {"echo", "hii", NULL}; 
-                execvp(args[0], args);
-                perror("execve");
-                exit(EXIT_FAILURE);
-            }
-        
             //////REGULAR COMMAND////////
-            // cout << data << endl;
-
-            //////SYSTEM COMMAND/////////
-            // setenv("data_paste", data.c_str(), 1);
-            // system("echo $data_paste"); // need to add data
+            cout << data << endl;
         }
 
         if (cmd == "TCP" && checkTCP == "PORT")
         {
-            //////SYSTEM COMMAND/////////
-            // system("netcat 127.0.0.1 54000");
 
             //////REGULAR COMMAND////////
-            //	Create a socket
+            //Create a socket
             int sock = socket(AF_INET, SOCK_STREAM, 0);
             if (sock == -1)
             {
@@ -162,148 +122,52 @@ int main(int argc, const char **argv)
                 }
             } while (true);
             close(sock);
-
-            // /////////fork////////////
-            //     //cout << a <<endl;
-            // pid_t ch_pid = fork();
-            // int status;
-
-            // //// if pid == -1, fork faild
-            // if (ch_pid == -1)
-            // {
-            //     perror("Fork failed");
-            //     exit(EXIT_FAILURE);
-            // }
-            // //////// if pid >0 , I'm parent
-            // else if (ch_pid > 0)
-            // {
-            //     cout << "spawn child with pid - " << ch_pid << endl;
-            //     wait(&status);
-            // }
-
-            // //////// if pid ==0 , I'm child
-            // else
-            // {
-            //     // char bufffer[100]; 
-            //     // strcpy(bufffer, data.c_str());
-            //     // char *args[4] ;
-            //     // args[0]= "echo"; 
-            //     // args[1]= bufffer; 
-            //     // args[2]=NULL;
-
-            //     char *args[4] = {"netcat", "127.0.0.1", "54000", NULL}; //////////// need to do another file for this function
-            //     execvp(args[0], args);
-            //     perror("execve");
-            //     exit(EXIT_FAILURE);
-            // }
         }
 
         if (cmd == "DIR")
         {
-            // ////////SYSTEM COMMAND////////
-            // // system("ls");
 
             // ////////REGULAR COMMAND///////
-            // DIR *dir_handler;
-            // struct dirent *files;
-            // open the current directory
-            // dir_handler = opendir(".");
-            // if (dir_handler)
-            // {
-            //     // if isn't null- print all the dir's files
-            //     while ((files = readdir(dir_handler)) != NULL)
-            //     {
-            //         // cout << files->d_name << endl;
-            //         cout << "\u001b[32;1m" << files->d_name << "\x1B[0m" << endl;
-            //     }
-            // }
-            // else
-            // {
-            //     cout << "Error" << endl;
-            // }
-            // closedir(dir_handler);
-
-            pid_t ch_pid = fork();
-            int status;
-
-            //// if pid == -1, fork faild
-            if (ch_pid == -1)
+            DIR *dir_handler;
+            struct dirent *files;
+            //open the current directory
+            dir_handler = opendir(".");
+            if (dir_handler)
             {
-                perror("Fork failed");
-                exit(EXIT_FAILURE);
+                // if isn't null- print all the dir's files
+                while ((files = readdir(dir_handler)) != NULL)
+                {
+                    // cout << files->d_name << endl;
+                    cout << "\u001b[32;1m" << files->d_name << "\x1B[0m" << endl;
+                }
             }
-            //////// if pid >0 , I'm parent
-            else if (ch_pid > 0)
-            {
-                cout << "spawn child with pid - " << ch_pid << endl;
-                wait(&status);
-            }
-
-            //////// if pid ==0 , I'm child
             else
             {
-                char *args[2] = {"dir", NULL}; //////////// need to do another file for this function
-                execvp(args[0], args);
-                perror("execve");
-                exit(EXIT_FAILURE);
+                cout << "Error" << endl;
             }
+            closedir(dir_handler);
         }
 
         if (cmd == "CD")
         {
-            pid_t ch_pid = fork();
-            int status;
 
-            //// if pid == -1, fork faild
-            if (ch_pid == -1)
+               // ////////REGULAR COMMAND////////
+            if (data == ".." || data == "\n")
             {
-                perror("Fork failed");
-                exit(EXIT_FAILURE);
+                chdir("..");
             }
-            //////// if pid >0 , I'm parent
-            else if (ch_pid > 0)
-            {
-                cout << "spawn child with pid - " << ch_pid << endl;
-                wait(&status);
-            }
-
-            //////// if pid ==0 , I'm child
             else
             {
-                
-                char *args[3] = {"cd", "NEW_DIR", NULL}; 
-                execvp(args[0], args);
-                perror("execve");
-                exit(EXIT_FAILURE);
-            }
-            // ///////SYSTEM COMMAND/////////
-            // string cur_dir= getcwd(cwd, sizeof(cwd));
-           // string new_dir= "cd "+data;
-            // string a= new_dir.append(data); 
-            //cout << new_dir << endl;
-
-            //  system("cd NEW_DIR");
-            // string cur_dir= getcwd(cwd, sizeof(cwd));
-            //  cout << cur_dir << endl;
-
-           
-
-            // ////////REGULAR COMMAND////////
-            // if (data == ".." || data == "\n")
-            // {
-            //     chdir("..");
-            // }
-            // else
-            // {
-            //     string a = "";
-            //     a.append(data);
-            //     const char *new_cd = a.c_str(); // convert string to const char
-            //     int check;
-            //     cout << new_cd << endl;
-            //     check = chdir(new_cd); // if directory was change successfully, check=0 , else -1
-            //     cout << check << endl;
-            //     cout << "after change" << endl;
-            // }
+                string a = "";
+                a.append(data);
+                const char *new_cd = a.c_str(); // convert string to const char
+                int check;
+                cout << new_cd << endl;
+                check = chdir(new_cd); // if directory was change successfully, check=0 , else -1
+                cout << check << endl;
+                cout << "after change" << endl;
+            } 
+        
         }
 
         // copy file from source to dest
@@ -347,8 +211,52 @@ int main(int argc, const char **argv)
             unlink(file_name);
             cout << "file deleted successfully" << endl;
         }
+
+        /////// SYSTEM COMMANDD //////////
+        // const char *a= line.c_str();
+        // system(a);
+
+        ////////////FORK command//////////// 
+        else {
+
+           pid_t ch_pid = fork();
+            int status;
+
+            //// if pid == -1, fork faild
+            if (ch_pid == -1)
+            {
+                perror("Fork failed");
+                exit(EXIT_FAILURE);
+            }
+            //////// if pid >0 , I'm parent
+            else if (ch_pid > 0)
+            {
+                cout << "spawn child with pid - " << ch_pid << endl;
+                wait(&status);
+            }
+
+            //////// if pid ==0 , I'm child
+            else
+            {
+                char bufffer_data[100]; 
+                char cmd_exe[10]; 
+                strcpy(bufffer_data, data.c_str());
+                strcpy(cmd_exe, cmd.c_str());
+
+                char *args[3] ;
+                args[0]= cmd_exe; 
+                args[1]= bufffer_data; 
+                args[2]=NULL; 
+
+                //= {"echo", "hii", NULL}; 
+                execvp(args[0], args);
+                perror("execve");
+                exit(EXIT_FAILURE);
+            }
     }
-    return 0;
+    }
+        return 0;
+
 
     /* ***********************ANSWERS*****************************
         1. DOES SYSTEM IS LIBRARY FUNCTION OR SYSTEM FUNCTION?
@@ -360,7 +268,7 @@ int main(int argc, const char **argv)
             because we use in "fread", "fwrite", "fclose".
 
         3. DOES "cd" COMMAND IS A LIBRARY FUNCTION OR SYSTEM FUNCTION?
-        3-The chdir command is a system function (system call) which is used to change the current directory
+        3-The chdir command is a library function (system call) which is used to change the current directory
 
 
         4. DOES "DELETE FILENAME" COMMAND IS A LIBRARY FUNCTION OR SYSTEM FUNCTION?
