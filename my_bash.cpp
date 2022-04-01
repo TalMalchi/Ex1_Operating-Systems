@@ -1,3 +1,11 @@
+/*
+Authors : Guy Azoulay 207709734
+          Tal Malchi 208278556  
+*/
+
+
+
+
 #include <iostream>
 #include <string>
 #include <stdlib.h>
@@ -22,16 +30,17 @@
 
 using namespace std;
 
-int main(int argc, const char **argv)
+int shell()
 {
 
     // get current lib
     char cwd[1024];
 
     // get input from the user
-    string line, cmd, data;
-    while (cmd != "EXIT")
+    string cmd;
+    while (1)
     {
+        string line, data;
         // print current directory each time
         getcwd(cwd, sizeof(cwd));
         cout << "\u001b[33;1m" << cwd << ": "
@@ -40,8 +49,7 @@ int main(int argc, const char **argv)
              << "Yes Master ?"
              << "\x1B[0m" << endl;
 
-        getline(cin, line);
-        cout << line << endl; 
+        getline(cin, line); 
         // first word is cmd
         cmd = line.substr(0, line.find_first_of(" "));
 
@@ -52,14 +60,16 @@ int main(int argc, const char **argv)
         }
         string checkTCP = data.substr(data.find_first_of(" ") + 1);
 
-
-        if (cmd == "ECHO")
+        if(cmd== "EXIT"){
+            return 0;
+        }
+        else if (cmd == "ECHO")
         {
             //////REGULAR COMMAND////////
             cout << data << endl;
         }
 
-        if (cmd == "TCP" && checkTCP == "PORT")
+         else if   (cmd == "TCP" && checkTCP == "PORT")
         {
 
             //////REGULAR COMMAND////////
@@ -124,7 +134,7 @@ int main(int argc, const char **argv)
             close(sock);
         }
 
-        if (cmd == "DIR")
+        else if (cmd == "DIR")
         {
 
             // ////////REGULAR COMMAND///////
@@ -148,7 +158,7 @@ int main(int argc, const char **argv)
             closedir(dir_handler);
         }
 
-        if (cmd == "CD")
+        else if (cmd == "CD")
         {          
             if (data == ".." || data == "\n")
             {
@@ -168,7 +178,7 @@ int main(int argc, const char **argv)
         }
 
         // copy file from source to dest
-        if (cmd == "COPY")
+       else if (cmd == "COPY")
         {
             string src, dst;
             char buf[BUFSIZ]; // default is 8192 bytes- one char at the time
@@ -202,7 +212,7 @@ int main(int argc, const char **argv)
             fclose(dst_open_file);
         }
 
-        if (cmd == "DELETE")
+        else if (cmd == "DELETE")
         {
             const char *file_name = data.c_str();
             unlink(file_name);
@@ -225,6 +235,8 @@ int main(int argc, const char **argv)
                 perror("Fork failed");
                 exit(EXIT_FAILURE);
             }
+
+        
             //////// if pid >0 , I'm parent
             else if (ch_pid > 0)
             {
@@ -235,6 +247,8 @@ int main(int argc, const char **argv)
             //////// if pid ==0 , I'm child
             else
             {
+            
+
                 char bufffer_data[100]; 
                 char cmd_exe[10]; 
                 ///// TODO- what happend if there is no data?? 
@@ -245,19 +259,35 @@ int main(int argc, const char **argv)
                 args[0]= cmd_exe; 
                 args[1]= bufffer_data; 
                 args[2]=NULL; 
-
-                //= {"echo", "hii", NULL}; 
                 char cmd1[100]= "/bin/";
-                strcpy(cmd1, cmd.c_str()); 
-                execlp(cmd1, cmd.c_str(), NULL);
-                //execvp(args[0], args);
-                //hihhhhhhhhh
-                perror("execve");
-                exit(EXIT_FAILURE);
+                strcpy(cmd1, cmd.c_str());
+
+                
+                if(data.size()>0)
+                {
+                    execvp(args[0], args);
+                    
+                    perror("execve");
+                    exit(EXIT_FAILURE);
+                }
+                else{
+                     execlp(cmd1, cmd.c_str(), NULL);
+                     perror("execve");
+                     exit(EXIT_FAILURE);       
+                }
+                
+            //    for(int i = 0 ; i<100; i++){
+            //        bufffer_data[i] = '\0';
+            //        args[1][i] = '\0';
+            //    }
+               
+
+                
+               
             }
     }
     }
-        return 0;
+    
 
 
     /* ***********************ANSWERS*****************************
@@ -282,4 +312,8 @@ int main(int argc, const char **argv)
     */
 
 
+}
+int main(){
+    shell();
+    return 0;
 }
