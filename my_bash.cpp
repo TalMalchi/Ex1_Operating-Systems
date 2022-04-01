@@ -149,9 +149,7 @@ int main(int argc, const char **argv)
         }
 
         if (cmd == "CD")
-        {
-
-               // ////////REGULAR COMMAND////////
+        {          
             if (data == ".." || data == "\n")
             {
                 chdir("..");
@@ -166,8 +164,7 @@ int main(int argc, const char **argv)
                 check = chdir(new_cd); // if directory was change successfully, check=0 , else -1
                 cout << check << endl;
                 cout << "after change" << endl;
-            } 
-        
+            }        
         }
 
         // copy file from source to dest
@@ -240,16 +237,21 @@ int main(int argc, const char **argv)
             {
                 char bufffer_data[100]; 
                 char cmd_exe[10]; 
+                ///// TODO- what happend if there is no data?? 
                 strcpy(bufffer_data, data.c_str());
                 strcpy(cmd_exe, cmd.c_str());
 
-                char *args[3] ;
+                char *args[2] ;
                 args[0]= cmd_exe; 
                 args[1]= bufffer_data; 
                 args[2]=NULL; 
 
                 //= {"echo", "hii", NULL}; 
-                execvp(args[0], args);
+                char cmd1[100]= "/bin/";
+                strcpy(cmd1, cmd.c_str()); 
+                execlp(cmd1, cmd.c_str(), NULL);
+                //execvp(args[0], args);
+                //hihhhhhhhhh
                 perror("execve");
                 exit(EXIT_FAILURE);
             }
