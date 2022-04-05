@@ -47,7 +47,24 @@ to see how this project works.
 
 
 We attaching a simple video which explain how to run this program:
+
 https://user-images.githubusercontent.com/87694635/161732931-0f4ae0b9-0447-4b8b-9397-d565e71ffba3.mp4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
