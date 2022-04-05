@@ -1,5 +1,6 @@
 # Ex1_Operating-Systems
-* Written by Guy Azoulay and Tal Malchi
+* Written by Guy Azoulay - 207709734 
+*            Tal Malchi -  208278556
 
 In this assigment we asked to built our own shell, we chose to implement this assigment in CPP languge.
 
@@ -34,10 +35,18 @@ and commends as we use to write to any type of shell will be in lower case type 
 
 ## How to run?
 
+So how do we run this project?
+
+first of all we need to compile both of the cpp files:
+* In aim compile the shell : g++ my_bash.cpp -o my_bash
+* In aim to compile the server : g++ server.cpp -o server
+
+Now we create 2 exe files, we simply type in the first terminal "   ./my_bash    "
+and in the other "    ./server    ", now you can use all the commends above in aim
+to see how this project works.
+
+
 We attaching a simple video which explain how to run this program:
-
-
-
 https://user-images.githubusercontent.com/87694635/161732931-0f4ae0b9-0447-4b8b-9397-d565e71ffba3.mp4
 
 
