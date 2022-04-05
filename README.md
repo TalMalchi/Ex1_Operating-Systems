@@ -1,6 +1,6 @@
 # Ex1_Operating-Systems
 * Written by Guy Azoulay - 207709734 
-*            Tal Malchi -  208278556
+             Tal Malchi -  208278556
 
 In this assigment we asked to built our own shell, we chose to implement this assigment in CPP languge.
 
