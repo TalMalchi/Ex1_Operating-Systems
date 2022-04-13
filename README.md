@@ -38,7 +38,7 @@ and commends as we use to write to any type of shell will be in lower case type 
 So how do we run this project?
 
 first of all we need to compile both of the cpp files:
-* In aim compile the shell : g++ my_bash.cpp -o my_bash
+* In aim compile the shell : g++ main.cpp -o my_bash
 * In aim to compile the server : g++ server.cpp -o server
 
 Now we create 2 exe files, we simply type in the first terminal "   ./my_bash    "

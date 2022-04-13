@@ -30,7 +30,7 @@ Authors : Guy Azoulay 207709734
 
 using namespace std;
 
-int shell()
+int main()
 {
 
     // get current lib
@@ -313,7 +313,7 @@ int shell()
 
 
 }
-int main(){
-    shell();
-    return 0;
-}
+// int main(){
+//     shell();
+//     return 0;
+// }
